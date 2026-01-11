@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "CryptoLearn",
+    "slug": "cryptolearn-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "cryptolearn",
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cryptolearn.app",
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      },
+      "deploymentTarget": "18.6"
+    },
+    "android": {
+      "package": "com.cryptolearn.app",
+      "versionCode": 1
+    },
+    "description": "CryptoLearn - Learn about cryptocurrencies and blockchain technology",
+    "extra": {
+      "eas": {
+        "projectId": "204f10d7-c0cd-404b-84b2-2999d83d26e2"
+      }
+    }
+  }
+}

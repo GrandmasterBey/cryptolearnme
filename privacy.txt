@@ -1,0 +1,59 @@
+CryptoLearn Privacy Policy
+========================
+
+Effective Date: January 7, 2026
+
+1. Information We Collect
+- Email address (for account creation and communication)
+- Name (for personalization)
+- Learning progress and course completion data
+- Device information for app optimization
+- Usage analytics via Google Analytics
+- Technical data for bug fixes
+
+2. How We Use Your Information
+- Account management and authentication
+- Personalized learning experience
+- Progress tracking and achievements
+- App improvement through analytics
+- Customer support and assistance
+- Security and fraud prevention
+
+3. Information Sharing
+We do not sell, rent, or share your personal information with third parties for marketing purposes, except as required by law or to protect our rights.
+
+4. Data Security
+- Data encryption in transit and at rest
+- Access controls and authentication
+- Regular security updates
+- Secure server storage
+
+5. Your Rights
+- Access and update your personal information
+- Correct inaccurate data
+- Request data deletion
+- Opt out of data collection
+- File complaints with authorities
+
+6. Children's Privacy
+Our service is not directed to children under 13. We do not knowingly collect personal information from children under 13.
+
+7. International Users
+Your information may be transferred to and processed in countries other than your own. We take appropriate safeguards to ensure your data remains protected in accordance with applicable laws, including:
+- GDPR (European Union)
+- CCPA (California)
+- CalOPPA (California)
+
+8. Policy Updates
+We may update this privacy policy from time to time. We will notify you of any material changes by:
+- Email notifications to your registered email
+- In-app notices
+- Website updates
+
+9. Contact Information
+If you have questions about this privacy policy or our data practices, please contact us:
+- Email: privacy@cryptolearn.me
+- Website: https://cryptolearn.me
+- Response Time: Within 30 days
+
+Last Updated: January 7, 2026

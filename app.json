@@ -9,6 +9,32 @@
       "fallbackToCacheTimeout": 0
     },
     "icon": "./assets/icon.png",
+    "ios": {
+      "icon": {
+        "icon": {
+          "29": "./assets/icons/icon-29.png",
+          "40": "./assets/icons/icon-40.png",
+          "57": "./assets/icons/icon-57.png",
+          "60": "./assets/icons/icon-60.png",
+          "76": "./assets/icons/icon-76.png",
+          "120": "./assets/icons/icon-120.png",
+          "152": "./assets/icons/icon-152.png",
+          "167": "./assets/icons/icon-167.png",
+          "180": "./assets/icons/icon-180.png",
+          "1024": "./assets/icons/icon-1024.png"
+        }
+      },
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cryptolearn.app",
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      },
+      "deploymentTarget": "18.6"
+    },
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -21,18 +47,6 @@
     "assetBundlePatterns": [
       "**/*"
     ],
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.cryptolearn.app",
-      "buildNumber": "1.0.0",
-      "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false,
-        "NSAppTransportSecurity": {
-          "NSAllowsArbitraryLoads": true
-        }
-      },
-      "deploymentTarget": "18.6"
-    },
     "android": {
       "package": "com.cryptolearn.app",
       "versionCode": 1

@@ -31,8 +31,7 @@
         "ITSAppUsesNonExemptEncryption": false,
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
-        },
-        "com.apple.developer.game-center": true
+        }
       },
       "deploymentTarget": "18.6"
     },

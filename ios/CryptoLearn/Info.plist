@@ -73,7 +73,5 @@
     <string>Light</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
-    <key>com.apple.developer.game-center</key>
-    <false/>
   </dict>
 </plist>

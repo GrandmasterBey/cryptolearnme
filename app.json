@@ -51,7 +51,11 @@
       "package": "com.cryptolearn.app",
       "versionCode": 1
     },
-    "description": "CryptoLearn - Learn about cryptocurrencies and blockchain technology",
+    "description": "CryptoLearn - Your comprehensive guide to cryptocurrencies and blockchain technology. Learn about Bitcoin, Ethereum, DeFi, NFTs, and more with our educational platform featuring tutorials, market analysis, and interactive learning tools.",
+    "keywords": ["crypto", "cryptocurrency", "bitcoin", "ethereum", "blockchain", "defi", "nft", "education", "finance", "trading"],
+    "category": "Education",
+    "primaryCategory": "Education",
+    "secondaryCategory": "Finance",
     "extra": {
       "eas": {
         "projectId": "204f10d7-c0cd-404b-84b2-2999d83d26e2"

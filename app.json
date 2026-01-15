@@ -56,6 +56,7 @@
     "category": "Education",
     "primaryCategory": "Education",
     "secondaryCategory": "Finance",
+    "privacy": "https://cryptolearn.me/privacy",
     "extra": {
       "eas": {
         "projectId": "204f10d7-c0cd-404b-84b2-2999d83d26e2"

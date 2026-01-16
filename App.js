@@ -1,24 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { WebView, View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { WebView, View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, SafeAreaView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 
 export default function App() {
-  const [canGoBack, setCanGoBack] = useState(false);
-  const [canGoForward, setCanGoForward] = useState(false);
   const [loading, setLoading] = useState(true);
   const webViewRef = useRef(null);
-
-  const handleBack = () => {
-    if (webViewRef.current && canGoBack) {
-      webViewRef.current.goBack();
-    }
-  };
-
-  const handleForward = () => {
-    if (webViewRef.current && canGoForward) {
-      webViewRef.current.goForward();
-    }
-  };
 
   const handleRefresh = () => {
     if (webViewRef.current) {
@@ -26,41 +12,27 @@ export default function App() {
     }
   };
 
-  const showNavigationAlert = () => {
+  const showHelp = () => {
     Alert.alert(
-      'Navigation Help',
-      'Use the navigation buttons above to browse the CryptoLearn website. You can also swipe left/right to go back/forward.',
+      'CryptoLearn Help',
+      'Welcome to CryptoLearn!\n\nThis app provides comprehensive cryptocurrency education.\n\nTap the refresh button to reload content.',
       [{ text: 'Got it!' }]
     );
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={[styles.navButton, !canGoBack && styles.disabledButton]} 
-          onPress={handleBack}
-          disabled={!canGoBack}
-        >
-          <Text style={styles.navButtonText}>←</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.refreshButton} onPress={handleRefresh}>
-          <Text style={styles.navButtonText}>↻</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={[styles.navButton, !canGoForward && styles.disabledButton]} 
-          onPress={handleForward}
-          disabled={!canGoForward}
-        >
-          <Text style={styles.navButtonText}>→</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.helpButton} onPress={showNavigationAlert}>
-          <Text style={styles.helpButtonText}>?</Text>
-        </TouchableOpacity>
+        <Text style={styles.title}>CryptoLearn</Text>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.refreshButton} onPress={handleRefresh}>
+            <Text style={styles.buttonText}>↻</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.helpButton} onPress={showHelp}>
+            <Text style={styles.buttonText}>?</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       
       <WebView
@@ -78,9 +50,9 @@ export default function App() {
         showsVerticalScrollIndicator={false}
         onLoadStart={() => setLoading(true)}
         onLoadEnd={() => setLoading(false)}
-        onNavigationStateChange={(navState) => {
-          setCanGoBack(navState.canGoBack);
-          setCanGoForward(navState.canGoForward);
+        onError={(error) => {
+          console.log('WebView Error:', error);
+          setLoading(false);
         }}
       />
       
@@ -90,7 +62,7 @@ export default function App() {
           <Text style={styles.loadingText}>Loading CryptoLearn...</Text>
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -103,45 +75,39 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingTop: 50,
+    paddingHorizontal: 15,
+    paddingTop: 10,
     paddingBottom: 10,
     backgroundColor: '#1a1a1a',
     borderBottomWidth: 1,
     borderBottomColor: '#333',
   },
-  navButton: {
-    padding: 10,
-    minWidth: 50,
-    alignItems: 'center',
-    backgroundColor: '#4A90E2',
-    borderRadius: 5,
-  },
-  disabledButton: {
-    backgroundColor: '#333',
-  },
-  refreshButton: {
-    padding: 10,
-    minWidth: 50,
-    alignItems: 'center',
-    backgroundColor: '#4A90E2',
-    borderRadius: 5,
-  },
-  helpButton: {
-    padding: 10,
-    minWidth: 50,
-    alignItems: 'center',
-    backgroundColor: '#FFD700',
-    borderRadius: 5,
-  },
-  navButtonText: {
+  title: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
   },
-  helpButtonText: {
-    color: '#000',
-    fontSize: 18,
+  buttonContainer: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  refreshButton: {
+    padding: 8,
+    backgroundColor: '#4A90E2',
+    borderRadius: 5,
+    minWidth: 40,
+    alignItems: 'center',
+  },
+  helpButton: {
+    padding: 8,
+    backgroundColor: '#FFD700',
+    borderRadius: 5,
+    minWidth: 40,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
     fontWeight: 'bold',
   },
   webView: {

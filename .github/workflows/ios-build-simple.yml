@@ -44,18 +44,26 @@ jobs:
           CODE_SIGNING_REQUIRED=NO \
           archive
           
-    - name: Export IPA (no signing)
+    - name: Create IPA with manual icons
       run: |
         cd ios
-        xcodebuild \
-          -exportArchive \
-          -archivePath $PWD/build/CryptoLearn.xcarchive \
-          -exportPath $PWD/build \
-          -exportOptionsPlist ExportOptions.plist
+        # Create IPA directory
+        mkdir -p build/Payload
+        
+        # Copy app from archive to Payload
+        cp -r build/CryptoLearn.xcarchive/Products/Applications/CryptoLearn.app build/Payload/
+        
+        # Manually copy standalone icons
+        cp CryptoLearn/AppIcon120x120.png build/Payload/CryptoLearn.app/ 2>/dev/null || echo "120x120 icon not found"
+        cp CryptoLearn/AppIcon167x167.png build/Payload/CryptoLearn.app/ 2>/dev/null || echo "167x167 icon not found"
+        
+        # Create IPA
+        cd build
+        zip -r CryptoLearn.ipa Payload/
           
     - name: Upload IPA artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ios-ipa-unsigned
+        name: ios-ipa-simple-icons
         path: ios/build/CryptoLearn.ipa
         retention-days: 30

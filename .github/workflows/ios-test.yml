@@ -1,0 +1,50 @@
+name: Build iOS Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm install
+        cd ios && pod install
+        
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+        
+    - name: Build iOS project (test build)
+      run: |
+        cd ios
+        xcodebuild \
+          -workspace CryptoLearn.xcworkspace \
+          -scheme CryptoLearn \
+          -configuration Release \
+          -destination generic/platform=iOS \
+          -derivedDataPath $PWD/build \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          build
+          
+    - name: Check build output
+      run: |
+        echo "Build completed successfully!"
+        ls -la ios/build/Build/Products/Release-iphoneos/ || echo "No products found"

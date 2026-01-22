@@ -1,0 +1,74 @@
+name: Build iOS App (Final Icons)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm install
+        cd ios && pod install
+        
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+        
+    - name: Build iOS app (no signing)
+      run: |
+        cd ios
+        xcodebuild \
+          -workspace CryptoLearn.xcworkspace \
+          -scheme CryptoLearn \
+          -configuration Release \
+          -destination generic/platform=iOS \
+          -archivePath $PWD/build/CryptoLearn.xcarchive \
+          -derivedDataPath $PWD/build/DerivedData \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          PROVISIONING_PROFILE_SPECIFIER="" \
+          archive
+          
+    - name: Create IPA with forced icons
+      run: |
+        cd ios
+        # Create IPA directory
+        mkdir -p build/Payload
+        
+        # Copy app from archive to Payload
+        cp -r build/CryptoLearn.xcarchive/Products/Applications/CryptoLearn.app build/Payload/
+        
+        # Force copy standalone icons (overwrite if exists)
+        cp -f CryptoLearn/AppIcon120x120.png build/Payload/CryptoLearn.app/ || echo "Warning: 120x120 icon not found"
+        cp -f CryptoLearn/AppIcon167x167.png build/Payload/CryptoLearn.app/ || echo "Warning: 167x167 icon not found"
+        
+        # Verify icons exist
+        ls -la build/Payload/CryptoLearn.app/ | grep -E "(AppIcon120|AppIcon167)" || echo "Icons not found in bundle"
+        
+        # Create IPA
+        cd build
+        zip -r CryptoLearn.ipa Payload/
+        
+    - name: Upload IPA artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-ipa-final-icons
+        path: ios/build/CryptoLearn.ipa
+        retention-days: 30

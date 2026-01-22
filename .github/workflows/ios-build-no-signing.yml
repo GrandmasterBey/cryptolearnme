@@ -1,0 +1,67 @@
+name: Build iOS App (No Signing)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm install
+        cd ios && pod install
+        
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+        
+    - name: Build iOS app (no signing)
+      run: |
+        cd ios
+        xcodebuild \
+          -workspace CryptoLearn.xcworkspace \
+          -scheme CryptoLearn \
+          -configuration Release \
+          -destination generic/platform=iOS \
+          -archivePath $PWD/build/CryptoLearn.xcarchive \
+          -derivedDataPath $PWD/build/DerivedData \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          PROVISIONING_PROFILE_SPECIFIER="" \
+          archive
+          
+    - name: Create IPA from archive
+      run: |
+        cd ios
+        # Create IPA directory
+        mkdir -p build/Payload
+        
+        # Copy app from archive to Payload
+        cp -r build/CryptoLearn.xcarchive/Products/Applications/CryptoLearn.app build/Payload/
+        
+        # Create IPA
+        cd build
+        zip -r CryptoLearn.ipa Payload/
+        
+    - name: Upload IPA artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-ipa-no-signing
+        path: ios/build/CryptoLearn.ipa
+        retention-days: 30

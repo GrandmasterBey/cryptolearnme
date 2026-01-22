@@ -1,0 +1,92 @@
+name: Build iOS App (Signed)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm install
+        cd ios && pod install
+        
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+        
+    - name: Configure signing
+      run: |
+        cd ios
+        # Create a temporary signing config for GitHub Actions
+        mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+        echo "Team ID: M9QP95G3R6"
+        
+    - name: Build iOS app (signed)
+      run: |
+        cd ios
+        xcodebuild \
+          -workspace CryptoLearn.xcworkspace \
+          -scheme CryptoLearn \
+          -configuration Release \
+          -destination generic/platform=iOS \
+          -archivePath $PWD/build/CryptoLearn.xcarchive \
+          -derivedDataPath $PWD/build/DerivedData \
+          -allowProvisioningUpdates \
+          CODE_SIGN_STYLE=Automatic \
+          archive
+          
+    - name: Export IPA (signed)
+      run: |
+        cd ios
+        xcodebuild \
+          -exportArchive \
+          -archivePath $PWD/build/CryptoLearn.xcarchive \
+          -exportPath $PWD/build \
+          -exportOptionsPlist ExportOptions.plist \
+          -allowProvisioningUpdates
+          
+    - name: Add standalone icons to signed IPA
+      run: |
+        cd ios
+        # Extract the signed IPA
+        unzip -q build/CryptoLearn.ipa -d build/extracted
+        
+        # Add standalone icons
+        if [ -f CryptoLearn/AppIcon120x120.png ]; then
+          cp CryptoLearn/AppIcon120x120.png build/extracted/Payload/CryptoLearn.app/
+          echo "✅ Added 120x120 icon"
+        fi
+        
+        if [ -f CryptoLearn/AppIcon167x167.png ]; then
+          cp CryptoLearn/AppIcon167x167.png build/extracted/Payload/CryptoLearn.app/
+          echo "✅ Added 167x167 icon"
+        fi
+        
+        # Rebuild IPA preserving signature
+        cd build/extracted
+        zip -r ../CryptoLearn_Final.ipa Payload/
+        cd ..
+        
+    - name: Upload IPA artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-ipa-signed
+        path: ios/build/CryptoLearn_Final.ipa
+        retention-days: 30

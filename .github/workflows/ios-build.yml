@@ -1,0 +1,66 @@
+name: Build iOS App
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm install
+        cd ios && pod install
+        
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+        
+    - name: Configure iOS build
+      run: |
+        # Update build number
+        BUILD_NUMBER=$(date +%s)
+        echo "Updating build number to $BUILD_NUMBER"
+        plutil -replace CFBundleVersion -string "$BUILD_NUMBER" ios/CryptoLearn/Info.plist
+        
+    - name: Build iOS app
+      run: |
+        cd ios
+        xcodebuild \
+          -workspace CryptoLearn.xcworkspace \
+          -scheme CryptoLearn \
+          -configuration Release \
+          -destination generic/platform=iOS \
+          -archivePath $PWD/build/CryptoLearn.xcarchive \
+          archive
+          
+    - name: Export IPA
+      run: |
+        cd ios
+        xcodebuild \
+          -exportArchive \
+          -archivePath $PWD/build/CryptoLearn.xcarchive \
+          -exportPath $PWD/build \
+          -exportOptionsPlist ExportOptions.plist
+          
+    - name: Upload IPA artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-ipa
+        path: ios/build/CryptoLearn.ipa
+        retention-days: 30

@@ -1,0 +1,72 @@
+name: Build iOS App (Minimal)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm install
+        cd ios && pod install
+        
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+        
+    - name: Build iOS app (minimal)
+      run: |
+        cd ios
+        xcodebuild \
+          -workspace CryptoLearn.xcworkspace \
+          -scheme CryptoLearn \
+          -configuration Release \
+          -destination generic/platform=iOS \
+          -archivePath $PWD/build/CryptoLearn.xcarchive \
+          -derivedDataPath $PWD/build/DerivedData \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          archive
+          
+    - name: Create IPA (minimal)
+      run: |
+        cd ios
+        mkdir -p build/Payload
+        cp -r build/CryptoLearn.xcarchive/Products/Applications/CryptoLearn.app build/Payload/
+        
+        # Add standalone icons if they exist
+        if [ -f CryptoLearn/AppIcon120x120.png ]; then
+          cp CryptoLearn/AppIcon120x120.png build/Payload/CryptoLearn.app/
+          echo "✅ Added 120x120 icon"
+        fi
+        
+        if [ -f CryptoLearn/AppIcon167x167.png ]; then
+          cp CryptoLearn/AppIcon167x167.png build/Payload/CryptoLearn.app/
+          echo "✅ Added 167x167 icon"
+        fi
+        
+        cd build && zip -r CryptoLearn.ipa Payload/
+        
+    - name: Upload IPA artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-ipa-minimal
+        path: ios/build/CryptoLearn.ipa
+        retention-days: 30

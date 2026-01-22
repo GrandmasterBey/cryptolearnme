@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>method</key>
-    <string>app-store</string>
+    <string>development</string>
     <key>teamID</key>
     <string>M9QP95G3R6</string>
     <key>uploadBitcode</key>
@@ -16,10 +16,5 @@
     <string>automatic</string>
     <key>destination</key>
     <string>export</string>
-    <key>provisioningProfiles</key>
-    <dict>
-        <key>com.cryptolearn.app</key>
-        <string>9T25GS689Y</string>
-    </dict>
 </dict>
 </plist>

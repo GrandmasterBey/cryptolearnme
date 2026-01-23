@@ -1,0 +1,113 @@
+name: Build iOS App (Local No Signing)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm install
+        npx expo install
+        
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+        
+    - name: Install CocoaPods
+      run: |
+        cd ios
+        pod install
+        
+    - name: Create standalone PNG icons
+      run: |
+        echo "🔧 Creating standalone PNG icons..."
+        sips -z 120 120 assets/icon.png --out ios/CryptoLearn/AppIcon120x120.png
+        sips -z 167 167 assets/icon.png --out ios/CryptoLearn/AppIcon167x167.png
+        echo "✅ Standalone icons created"
+        
+    - name: Verify icon format
+      run: |
+        echo "🔍 Verifying icon format..."
+        file ios/CryptoLearn/AppIcon120x120.png
+        file ios/CryptoLearn/AppIcon167x167.png
+        
+    - name: Build iOS app (no signing)
+      run: |
+        cd ios
+        xcodebuild -workspace CryptoLearn.xcworkspace \
+          -scheme CryptoLearn \
+          -configuration Release \
+          -destination generic/platform=iOS \
+          -archivePath $PWD/build/CryptoLearn.xcarchive \
+          CODE_SIGNING_ALLOWED=NO \
+          archive
+          
+    - name: Create IPA manually
+      run: |
+        echo "🔧 Creating IPA manually..."
+        cd ios
+        
+        # Create IPA directory structure
+        mkdir -p build/Payload
+        
+        # Copy app bundle from archive
+        cp -r build/CryptoLearn.xcarchive/Products/Applications/CryptoLearn.app build/Payload/
+        
+        # Copy standalone icons
+        cp CryptoLearn/AppIcon120x120.png build/Payload/CryptoLearn.app/
+        cp CryptoLearn/AppIcon167x167.png build/Payload/CryptoLearn.app/
+        
+        # Create IPA
+        cd build
+        zip -r CryptoLearn_Unsigned.ipa Payload/ > /dev/null 2>&1
+        
+        echo "✅ Unsigned IPA created: CryptoLearn_Unsigned.ipa"
+        
+    - name: Verify IPA contents
+      run: |
+        echo "🔍 Verifying IPA contents..."
+        cd ios/build
+        
+        # Check icon format
+        echo "Checking 120x120 icon:"
+        unzip -p CryptoLearn_Unsigned.ipa "Payload/CryptoLearn.app/AppIcon120x120.png" | file -
+        
+        echo "Checking 167x167 icon:"
+        unzip -p CryptoLearn_Unsigned.ipa "Payload/CryptoLearn.app/AppIcon167x167.png" | file -
+        
+        # List app bundle contents
+        echo "App bundle contents:"
+        unzip -q CryptoLearn_Unsigned.ipa
+        ls -la Payload/CryptoLearn.app/ | grep -E "(AppIcon|\.png)"
+        
+    - name: Upload IPA artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-ipa-unsigned
+        path: ios/build/CryptoLearn_Unsigned.ipa
+        retention-days: 30
+        
+    - name: Upload app bundle for signing
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-app-bundle
+        path: ios/build/Payload/CryptoLearn.app
+        retention-days: 30

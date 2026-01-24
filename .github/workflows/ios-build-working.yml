@@ -46,7 +46,10 @@ jobs:
     - name: Build with Expo (handles signing automatically)
       run: |
         echo "🏗️ Building with Expo..."
-        CI=1 npx eas build --platform ios --profile production --local
+        # Ensure we have proper credentials
+        eas credentials:list
+        # Build with explicit profile
+        CI=1 npx eas build --platform ios --profile production --local --non-interactive
         
     - name: Download and verify IPA
       run: |
@@ -64,7 +67,18 @@ jobs:
             unzip -p CryptoLearn_WORKING.ipa Payload/CryptoLearn.app/AppIcon120x120.png | file -
             unzip -p CryptoLearn_WORKING.ipa Payload/CryptoLearn.app/AppIcon167x167.png | file -
             
+            # Check for provisioning profile
+            echo "📋 Checking for provisioning profile..."
+            unzip -l CryptoLearn_WORKING.ipa | grep "embedded.mobileprovision" || echo "❌ MISSING: embedded.mobileprovision"
+            
             unzip -q CryptoLearn_WORKING.ipa
+            if [ -f "Payload/CryptoLearn.app/embedded.mobileprovision" ]; then
+              echo "✅ Provisioning profile found"
+              security cms -D -i Payload/CryptoLearn.app/embedded.mobileprovision | plutil -p - | grep -E "(Name|Type|Team)"
+            else
+              echo "❌ NO provisioning profile found!"
+            fi
+            
             codesign -dv Payload/CryptoLearn.app
             spctl -a -v Payload/CryptoLearn.app || echo "⚠️ Gatekeeper check failed"
             

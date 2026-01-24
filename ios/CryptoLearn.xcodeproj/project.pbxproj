@@ -11,6 +11,8 @@
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		6A3BB337F2B355A0B497D60D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 12E34CC6850735536F43D91C /* PrivacyInfo.xcprivacy */; };
 		836BA351402D99C1CCDB08A0 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A48E226666DC47B4C7A2458D /* ExpoModulesProvider.swift */; };
+		APPICON120120 /* AppIcon120x120.png in Resources */ = {isa = PBXBuildFile; fileRef = APPICON120REF /* AppIcon120x120.png */; };
+		APPICON167167 /* AppIcon167x167.png in Resources */ = {isa = PBXBuildFile; fileRef = APPICON167REF /* AppIcon167x167.png */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 		F3AFB9377542DEB69CD1245F /* libPods-CryptoLearn.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F05E0D8C125BB530CCC9D9CF /* libPods-CryptoLearn.a */; };
@@ -25,6 +27,8 @@
 		8599B05CF66A1719E50C0D10 /* Pods-CryptoLearn.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CryptoLearn.release.xcconfig"; path = "Target Support Files/Pods-CryptoLearn/Pods-CryptoLearn.release.xcconfig"; sourceTree = "<group>"; };
 		A48E226666DC47B4C7A2458D /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-CryptoLearn/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = CryptoLearn/SplashScreen.storyboard; sourceTree = "<group>"; };
+		APPICON120REF /* AppIcon120x120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = AppIcon120x120.png; path = CryptoLearn/AppIcon120x120.png; sourceTree = "<group>"; };
+		APPICON167REF /* AppIcon167x167.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = AppIcon167x167.png; path = CryptoLearn/AppIcon167x167.png; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F05E0D8C125BB530CCC9D9CF /* libPods-CryptoLearn.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-CryptoLearn.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -59,6 +63,8 @@
 				F11748442D0722820044C1D9 /* CryptoLearn-Bridging-Header.h */,
 				BB2F792B24A3F905000567C9 /* Supporting */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
+				APPICON120REF /* AppIcon120x120.png */,
+				APPICON167REF /* AppIcon167x167.png */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
 				12E34CC6850735536F43D91C /* PrivacyInfo.xcprivacy */,
@@ -194,6 +200,8 @@
 			files = (
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				APPICON120120 /* AppIcon120x120.png in Resources */,
+				APPICON167167 /* AppIcon167x167.png in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
 				6A3BB337F2B355A0B497D60D /* PrivacyInfo.xcprivacy in Resources */,
 			);

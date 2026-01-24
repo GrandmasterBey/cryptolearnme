@@ -73,6 +73,38 @@
     <string>Light</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
+    <key>CFBundleIcons</key>
+    <dict>
+      <key>CFBundlePrimaryIcon</key>
+      <dict>
+        <key>CFBundleIconFiles</key>
+        <array>
+          <string>AppIcon60x60</string>
+          <string>AppIcon120x120</string>
+        </array>
+        <key>CFBundleIconName</key>
+        <string>AppIcon</string>
+      </dict>
+    </dict>
+    <!-- Standalone icons for Transporter compatibility -->
+    <key>CFBundleIconFiles</key>
+    <array>
+      <string>AppIcon120x120</string>
+      <string>AppIcon167x167</string>
+    </array>
+    <key>CFBundleIcons~ipad</key>
+    <dict>
+      <key>CFBundlePrimaryIcon</key>
+      <dict>
+        <key>CFBundleIconFiles</key>
+        <array>
+          <string>AppIcon76x76</string>
+          <string>AppIcon167x167</string>
+        </array>
+        <key>CFBundleIconName</key>
+        <string>AppIcon</string>
+      </dict>
+    </dict>
     <key>UIRequiredDeviceCapabilities</key>
     <array>
       <string>armv7</string>

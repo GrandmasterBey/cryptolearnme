@@ -1,0 +1,88 @@
+name: Build iOS App for App Store
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'ios/**'
+      - 'assets/**'
+      - 'app.json'
+      - 'package.json'
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Setup Expo CLI
+      run: npm install -g @expo/cli eas-cli
+      
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+        
+    - name: Prepare standard PNG icons
+      run: |
+        mkdir -p assets/icons
+        # Convert main icon to standard PNG format
+        sips -s format png assets/icon.png --out assets/icons/AppIcon120x120.png
+        sips -z 167 167 assets/icon.png --out assets/icons/AppIcon167x167.png
+        # Verify formats
+        file assets/icons/AppIcon120x120.png
+        file assets/icons/AppIcon167x167.png
+        
+    - name: Install CocoaPods
+      run: |
+        cd ios
+        pod install
+        
+    - name: Build iOS App
+      run: |
+        cd ios
+        xcodebuild -workspace CryptoLearn.xcworkspace \
+          -scheme CryptoLearn \
+          -configuration Release \
+          -destination generic/platform=iOS \
+          -archivePath $PWD/build/CryptoLearn.xcarchive \
+          archive \
+          CODE_SIGN_STYLE=Manual \
+          PROVISIONING_PROFILE_SPECIFIER="" \
+          CODE_SIGN_IDENTITY=""
+          
+    - name: Export IPA
+      run: |
+        cd ios
+        xcodebuild -exportArchive \
+          -archivePath $PWD/build/CryptoLearn.xcarchive \
+          -exportPath $PWD/build \
+          -exportOptionsPlist exportOptions.plist
+          
+    - name: Add standalone icons to IPA
+      run: |
+        cd ios/build
+        unzip -q *.ipa
+        # Copy standard PNG icons to app bundle
+        cp ../../assets/icons/AppIcon120x120.png Payload/CryptoLearn.app/
+        cp ../../assets/icons/AppIcon167x167.png Payload/CryptoLearn.app/
+        # Re-package IPA
+        zip -r CryptoLearn_StandardPNG.ipa Payload/
+        
+    - name: Upload IPA artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-ipa
+        path: ios/build/CryptoLearn_StandardPNG.ipa

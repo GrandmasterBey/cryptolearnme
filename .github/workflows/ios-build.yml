@@ -38,7 +38,7 @@ jobs:
         echo "Updating build number to $BUILD_NUMBER"
         plutil -replace CFBundleVersion -string "$BUILD_NUMBER" ios/CryptoLearn/Info.plist
         
-    - name: Build iOS app
+    - name: Build and Archive with Xcode Cloud
       run: |
         cd ios
         xcodebuild \
@@ -50,6 +50,7 @@ jobs:
           -allowProvisioningUpdates \
           -derivedDataPath $PWD/build/DerivedData \
           CODE_SIGN_STYLE=Automatic \
+          PROVISIONING_PROFILE_SPECIFIER="" \
           archive
           
     - name: Export IPA

@@ -39,8 +39,12 @@ jobs:
     - name: Create standalone PNG icons
       run: |
         echo "🔧 Creating standalone PNG icons..."
-        sips -z 120 120 assets/icon.png --out ios/CryptoLearn/AppIcon120x120.png
+        # Create icons in standard PNG format (not CgBI)
+        sips -s format png assets/icon.png --out ios/CryptoLearn/AppIcon120x120.png
         sips -z 167 167 assets/icon.png --out ios/CryptoLearn/AppIcon167x167.png
+        # Resize to exact dimensions
+        sips -z 120 120 ios/CryptoLearn/AppIcon120x120.png --out ios/CryptoLearn/AppIcon120x120.png
+        sips -z 167 167 ios/CryptoLearn/AppIcon167x167.png --out ios/CryptoLearn/AppIcon167x167.png
         echo "✅ Standalone icons created"
         
     - name: Verify icon format
@@ -70,7 +74,7 @@ jobs:
         <plist version="1.0">
         <dict>
           <key>method</key>
-          <string>development</string>
+          <string>app-store</string>
           <key>teamID</key>
           <string>M9QP95G3R6</string>
           <key>uploadBitcode</key>
@@ -102,16 +106,50 @@ jobs:
         # Extract IPA
         unzip -q CryptoLearn.ipa -d extracted
         
-        # Copy standalone icons
-        cp ../../CryptoLearn/AppIcon120x120.png extracted/Payload/CryptoLearn.app/
-        cp ../../CryptoLearn/AppIcon167x167.png extracted/Payload/CryptoLearn.app/
+        # Copy standalone icons (already in standard PNG format)
+        cp ../CryptoLearn/AppIcon120x120.png extracted/Payload/CryptoLearn.app/
+        cp ../CryptoLearn/AppIcon167x167.png extracted/Payload/CryptoLearn.app/
         
-        # Re-create IPA
+        # Re-create IPA (this will break signature, but we'll re-sign)
         cd extracted
         zip -r ../CryptoLearn_Final.ipa Payload/ > /dev/null 2>&1
         cd ..
         
         echo "✅ Final IPA created: CryptoLearn_Final.ipa"
+        
+    - name: Re-sign IPA with proper certificate
+      run: |
+        echo "✍️ Re-signing IPA with Apple Distribution certificate..."
+        cd ios/build
+        
+        # Extract IPA
+        unzip -q CryptoLearn_Final.ipa -d final_app
+        
+        # Remove existing signature
+        codesign --remove-signature final_app/Payload/CryptoLearn.app
+        
+        # Find Apple Distribution certificate
+        DIST_CERT=$(security find-identity -v -p codesigning | grep "Apple Distribution" | head -1 | awk -F'"' '{print $2}')
+        
+        if [ -z "$DIST_CERT" ]; then
+          echo "❌ No Apple Distribution certificate found!"
+          echo "Available certificates:"
+          security find-identity -v -p codesigning
+          # Use Apple Development as fallback
+          DIST_CERT=$(security find-identity -v -p codesigning | grep "Apple Development" | head -1 | awk -F'"' '{print $2}')
+        fi
+        
+        echo "Using certificate: $DIST_CERT"
+        
+        # Re-sign with available certificate
+        codesign --force --sign "$DIST_CERT" final_app/Payload/CryptoLearn.app
+        
+        # Re-create final IPA
+        cd final_app
+        zip -r ../CryptoLearn_Final_Signed.ipa Payload/ > /dev/null 2>&1
+        cd ..
+        
+        echo "✅ Signed IPA created: CryptoLearn_Final_Signed.ipa"
         
     - name: Verify final IPA
       run: |
@@ -120,19 +158,26 @@ jobs:
         
         # Check icon format
         echo "Checking 120x120 icon:"
-        unzip -p CryptoLearn_Final.ipa "Payload/CryptoLearn.app/AppIcon120x120.png" | file -
+        unzip -p CryptoLearn_Final_Signed.ipa "Payload/CryptoLearn.app/AppIcon120x120.png" | file -
         
         echo "Checking 167x167 icon:"
-        unzip -p CryptoLearn_Final.ipa "Payload/CryptoLearn.app/AppIcon167x167.png" | file -
+        unzip -p CryptoLearn_Final_Signed.ipa "Payload/CryptoLearn.app/AppIcon167x167.png" | file -
         
         # Check signature
         echo "Checking signature:"
-        unzip -q CryptoLearn_Final.ipa
+        unzip -q CryptoLearn_Final_Signed.ipa
         codesign -dv Payload/CryptoLearn.app
+        spctl -a -v Payload/CryptoLearn.app
+        
+        # Check bundle info
+        echo "Bundle info:"
+        plutil -p Payload/CryptoLearn.app/Info.plist | grep -E "(CFBundleIdentifier|CFBundleVersion)"
+        
+        echo "✅ Verification complete!"
         
     - name: Upload IPA artifact
       uses: actions/upload-artifact@v4
       with:
         name: ios-ipa-xcode
-        path: ios/build/CryptoLearn_Final.ipa
+        path: ios/build/CryptoLearn_Final_Signed.ipa
         retention-days: 30

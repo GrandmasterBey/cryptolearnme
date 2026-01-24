@@ -12,7 +12,14 @@
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "ios": {
+        "buildConfiguration": "Release",
+        "scheme": "CryptoLearn",
+        "resourceClass": "m1-medium",
+        "enterpriseProvisioning": "universal",
+        "distribution": "app-store"
+      }
     }
   },
   "submit": {

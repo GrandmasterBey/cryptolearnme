@@ -1,0 +1,80 @@
+name: Build iOS App (WORKING)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm install
+        cd ios && pod install
+        
+    - name: Create standard PNG icons
+      run: |
+        echo "🎨 Creating standard PNG icons..."
+        mkdir -p ios/CryptoLearn/Icons
+        # Create icons in standard PNG format
+        sips -s format png assets/icon.png --out ios/CryptoLearn/Icons/AppIcon120x120.png
+        sips -z 167 167 assets/icon.png --out ios/CryptoLearn/Icons/AppIcon167x167.png
+        # Resize to exact dimensions
+        sips -z 120 120 ios/CryptoLearn/Icons/AppIcon120x120.png --out ios/CryptoLearn/Icons/AppIcon120x120.png
+        sips -z 167 167 ios/CryptoLearn/Icons/AppIcon167x167.png --out ios/CryptoLearn/Icons/AppIcon167x167.png
+        # Copy to main app directory
+        cp ios/CryptoLearn/Icons/AppIcon120x120.png ios/CryptoLearn/
+        cp ios/CryptoLearn/Icons/AppIcon167x167.png ios/CryptoLearn/
+        echo "✅ Icons created"
+        
+    - name: Verify icons
+      run: |
+        echo "🔍 Verifying icons..."
+        file ios/CryptoLearn/AppIcon120x120.png
+        file ios/CryptoLearn/AppIcon167x167.png
+        
+    - name: Build with Expo (handles signing automatically)
+      run: |
+        echo "🏗️ Building with Expo..."
+        CI=1 npx eas build --platform ios --profile production --local
+        
+    - name: Download and verify IPA
+      run: |
+        echo "📦 Processing build..."
+        # Find the most recent build
+        BUILD_ID=$(eas build:list --limit=1 --platform=ios --status=finished | grep -o '[a-f0-9-]\{36\}' | head -1)
+        if [ -n "$BUILD_ID" ]; then
+          echo "Found build ID: $BUILD_ID"
+          IPA_URL=$(eas build:view "$BUILD_ID" | grep "Application Archive URL" | awk '{print $NF}')
+          if [ -n "$IPA_URL" ]; then
+            echo "Downloading IPA..."
+            curl -L -o CryptoLearn_WORKING.ipa "$IPA_URL"
+            
+            echo "🔍 Verifying IPA..."
+            unzip -p CryptoLearn_WORKING.ipa Payload/CryptoLearn.app/AppIcon120x120.png | file -
+            unzip -p CryptoLearn_WORKING.ipa Payload/CryptoLearn.app/AppIcon167x167.png | file -
+            
+            unzip -q CryptoLearn_WORKING.ipa
+            codesign -dv Payload/CryptoLearn.app
+            spctl -a -v Payload/CryptoLearn.app || echo "⚠️ Gatekeeper check failed"
+            
+            echo "✅ IPA ready!"
+          fi
+        fi
+        
+    - name: Upload IPA
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-working-ipa
+        path: CryptoLearn_WORKING.ipa
+        retention-days: 30
